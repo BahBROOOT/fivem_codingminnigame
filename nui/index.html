@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repair Terminal NUI</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css"
+  />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/lua/lua.min.js"></script>
+
+  <style>
+    /* Device frame */
+    #terminal {
+      position: absolute;
+      top: 10%; left: 10%;
+      width: 80vw; height: 80vh;
+      background: #1e1e1e;
+      border: 12px solid #444;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      font-family: monospace;
+    }
+    /* Header */
+    #header {
+      background: #333;
+      padding: 8px;
+      color: #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #header .title { font-weight: bold; }
+
+    /* CodeMirror editor container */
+    .CodeMirror {
+      flex: 1;
+      height: auto;
+      background: #1e1e1e;
+    }
+
+    /* Gutter background & border */
+    .CodeMirror-gutters {
+      background: #1e1e1e;
+      border-right: 1px solid #444;
+    }
+    /* Line number colour */
+    .CodeMirror-linenumber {
+      color: #6a9955;
+    }
+    /* Active-line highlight (if you load the addon) */
+    .CodeMirror-activeline-background {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Console */
+    #console {
+      height: 20%;
+      background: #252526;
+      color: #ccc;
+      padding: 8px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+    /* Footer buttons */
+    #footer {
+      background: #333;
+      padding: 8px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    #footer button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      background: #0e639c;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #footer button:active { transform: translateY(1px); }
+
+    /* === Custom syntax colours === */
+    .CodeMirror .cm-keyword       { color: #569cd6 !important; font-weight: bold; }
+    .CodeMirror .cm-def           { color: #4ec9b0 !important; }          /* function names */
+    .CodeMirror .cm-variable      { color: #9cdcfe !important; }          /* locals & globals */
+    .CodeMirror .cm-variable-2    { color: #dcdcaa !important; }          /* built-ins, API calls */
+    .CodeMirror .cm-string        { color: #ce9178 !important; }
+    .CodeMirror .cm-number        { color: #b5cea8 !important; }
+    .CodeMirror .cm-comment       { color: #6a9955 !important; font-style: italic; }
+
+  </style>
+</head>
+<body>
+  <div id="terminal">
+    <div id="header">
+      <div class="title" id="title"></div>
+      <div class="status-icons">
+        <span id="timer">No time limit</span>
+      </div>
+    </div>
+
+    <textarea id="editor" placeholder="-- Write your Lua code here..."></textarea>
+
+    <div id="console"></div>
+    <div id="footer">
+      <button id="resetBtn">Reset ↻</button>
+      <button id="runBtn">Run ▶</button>
+      <button id="closeBtn">Close ✕</button>
+    </div>
+  </div>
+
+  <script>
+    // === Runtime state ===
+    let initialSnippet = '';
+    let maxLines       = null;        // line-limit
+    let countdown      = 0;           // seconds left
+    let timerInterval  = null;        // setInterval handle
+    const timerEl      = document.getElementById('timer');
+
+    // --- Initialise CodeMirror ---
+    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+      mode: 'lua',
+      lineNumbers: true,
+      theme: 'default'
+    });
+
+    // Helper: enforce maximum line count before the change is applied
+    editor.on('beforeChange', (cm, change) => {
+      if (maxLines === null) return;
+
+      const current = cm.lineCount();
+      const incomingLines = change.text.length - 1;
+      const replacedLines = change.to.line - change.from.line;
+      const futureTotal   = current + incomingLines - replacedLines;
+
+      if (futureTotal > maxLines) {
+        const allowedLines = maxLines - (current - replacedLines);
+        if (allowedLines <= 0) {
+          change.cancel();
+        } else {
+          const kept = change.text.slice(0, allowedLines).join('\n').replace(/\n/g, ' ');
+          change.update(change.from, change.to, [kept]);
+        }
+      }
+    });
+
+    // Helper Timer
+    function updateTimerDisplay () {
+      const m = Math.floor(countdown / 60).toString().padStart(2, '0');
+      const s = (countdown % 60).toString().padStart(2, '0');
+      timerEl.textContent = `${m}:${s}`;
+    }
+
+    function startCountdown (seconds) {
+      clearInterval(timerInterval);
+      countdown = seconds;
+      if (countdown <= 0) {
+        timerEl.textContent = '∞';
+        return;
+      }
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+          clearInterval(timerInterval);
+          timerEl.textContent = '00:00';
+          sendNui('close', { code: editor.getValue(), timeout: true });
+        } else {
+          updateTimerDisplay();
+        }
+      }, 1000);
+    }
+
+    // Hide terminal initially
+    document.getElementById('terminal').style.display = 'none';
+
+    // NUI message listener
+    window.addEventListener('message', (event) => {
+      const msg = event.data;
+      if (msg.action === 'showTerminal') {
+        document.getElementById('terminal').style.display = 'flex';
+      
+        editor.setValue(msg.scenario.snippet || '-- code here');
+        editor.refresh();
+      
+        initialSnippet = msg.scenario.snippet || '-- code here';
+        maxLines       = msg.scenario.maxLines || null;
+      
+        // Header text
+        const titleEl = document.getElementById('title');
+        titleEl.innerText = `${msg.scenario.scenario || 'TERMINAL'} ${msg.scenario.goal || ''}`;
+      
+        // Reset console
+        document.getElementById('console').innerText = '';
+      
+        /* start timer */
+        startCountdown(msg.scenario.time || 0);
+      }
+      else if (msg.action === 'hideTerminal') {
+        document.getElementById('terminal').style.display = 'none';
+        editor.setValue('');
+        document.getElementById('console').innerText = '';
+        maxLines = null;
+      
+        /* stop timer and restore default label */
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerEl.textContent = 'No time limit';
+      }
+      else if (msg.action === 'printTerminal') {
+        const c = document.getElementById('console');
+        c.innerText += msg.msg + '\n';
+        c.scrollTop = c.scrollHeight;
+      }
+    });
+    // Helper: send data back
+    const sendNui = (type, payload) => {
+      fetch(`https://${GetParentResourceName()}/${type}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify(payload)
+      });
+    };
+
+    // --- Button handlers & shortcuts ---
+    document.getElementById('runBtn').addEventListener('click', () => {
+      document.getElementById('console').innerText = '';
+      sendNui('runCode', { code: editor.getValue() });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      editor.setValue(initialSnippet || '-- code here');
+      document.getElementById('console').innerText = '';
+    });
+
+    document.getElementById('closeBtn').addEventListener('click', () => {
+      document.getElementById('console').innerText = '';
+      sendNui('close', { code: editor.getValue() });
+    });
+
+    // ESC key -> close
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'Escape') {
+        document.getElementById('console').innerText = '';
+        sendNui('close', { code: editor.getValue() });
+      }
+    });
+  </script>
+</body>
+</html>
