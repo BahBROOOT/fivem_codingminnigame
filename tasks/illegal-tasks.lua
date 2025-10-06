@@ -2,7 +2,7 @@ ILLEGAL = {
     --[[
     To create your own task (LEGAL or ILLEGAL) add a new entry that looks like this:
     {
-        id = "UNIQUE_ID", -- must be unique eg "task_1"
+        id = "UNIQUE_ID", -- must be unique eg "hack_bank_vault"
         scenario = "Scenario description",
         goal = "Goal description",
         hint = "Hint description",
@@ -134,10 +134,9 @@ knockoutCombo()
 
 function fibKeypad()
     -- EDIT HERE
-    return 0
 end
 
-return fibKeypad()
+fibKeypad()
         ]],
         beforeRun = function() end,
         validator = function(_env, returned, prints)
@@ -162,10 +161,9 @@ return fibKeypad()
 
 function twentyFifthPrime()
     -- EDIT HERE
-    return 0
 end
 
-return twentyFifthPrime()
+twentyFifthPrime()
     ]],
         beforeRun = function() end,
         validator = function(_env, returned, prints)

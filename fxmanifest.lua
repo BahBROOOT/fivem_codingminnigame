@@ -31,4 +31,4 @@ files {
     'nui/*.html',
 }
 
-ui_page 'nui/index.html'
+ui_page 'nui/test.html'

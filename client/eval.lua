@@ -1,6 +1,6 @@
--- Variables
-
+--------------------------------------------------------------------------------
 -- Functions
+--------------------------------------------------------------------------------
 
 --[[findScenarioById]]
 ---@param scenarioid string
@@ -32,6 +32,13 @@ function setupEnvForScenario(envCFG, scenario)
             local regist = Functions.__functionRegistry[funcName]
             if regist.func then
                 env[funcName] = regist.func
+
+                -- Make sure that additional functions are available
+                if regist.additional then
+                    for k, v in pairs(regist.additional) do
+                        env[k] = v
+                    end
+                end
             end
         end
     end

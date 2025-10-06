@@ -1,11 +1,16 @@
--- Variables
+--------------------------------------------------------------------------------
+-- Vars
+--------------------------------------------------------------------------------
+
 local scenarioPromise   = nil
 local inScenario = false
 local NUI_SHOWING = false
 local currentScenario = nil
 local currentENV = nil
 
+--------------------------------------------------------------------------------
 -- Functions
+--------------------------------------------------------------------------------
 
 --[[TaskPlayerScenario]]
 ---@param scenarioid string
