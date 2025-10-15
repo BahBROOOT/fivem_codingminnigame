@@ -1,5 +1,7 @@
 Config = {}
 
+Config.Debug = true
+
 -- Safe Functions setup and init
 Config.SafeEnvs = {
     [1] = {

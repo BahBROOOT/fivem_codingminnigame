@@ -3,7 +3,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'BahBROOOT'
-description 'A Coding Minnigame for FiveM made by BahBROOOT for the VarityRoleplay Server'
+description 'A coding minnigame for FiveM made by BahBROOOT'
 version '1.0.0'
 
 --[[

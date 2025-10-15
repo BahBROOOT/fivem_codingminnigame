@@ -12,9 +12,12 @@ local currentENV = nil
 -- Functions
 --------------------------------------------------------------------------------
 
---[[TaskPlayerScenario]]
----@param scenarioid string
----@param cb function function
+local function dbg(msg)
+    if Config.Debug then
+        print("[DEBUG] " .. msg)
+    end
+end
+
 function TaskPlayerScenario(scenarioid, cb)
     local scenario = findScenarioById(scenarioid)
     currentScenario = scenario
@@ -36,9 +39,6 @@ function TaskPlayerScenario(scenarioid, cb)
     return data.solved == true, data.statusmsg
 end
 
---[[doScenarioRun]]
----@param code string
----@param env table
 function doScenarioRun(code, env)
     if currentScenario.beforeRun then 
         currentScenario.beforeRun() 
@@ -59,9 +59,6 @@ function doScenarioRun(code, env)
     return solved, message, prints
 end
 
---[[showTerminal]]
----@param scenarioData table
----@param env table
 function showTerminal(scenarioData, env)
     local function cloneForNUI(src)
         local dst = {}
@@ -74,7 +71,7 @@ function showTerminal(scenarioData, env)
     end
 
     local scenarioJsonReady = cloneForNUI(scenarioData)
-    -- Just to make sure 
+
     scenarioJsonReady.env = nil
     scenarioJsonReady.beforeRun = nil
     scenarioJsonReady.validator = nil
@@ -89,8 +86,6 @@ function showTerminal(scenarioData, env)
     })
 end
 
---[[hideTerminal]]
----@param none any
 function hideTerminal()
     inScenario = false
     NUI_SHOWING = false
@@ -102,8 +97,6 @@ function hideTerminal()
     SetNuiFocus(false, false)
 end
 
---[[printTerminal]]
----@param msg string
 function printTerminal(msg)
     SendNUIMessage({ 
         action = "printTerminal",
@@ -111,8 +104,6 @@ function printTerminal(msg)
     })
 end
 
---[[handeRuncodeResponse]]
----@param data table
 function handeRuncodeResponse(data)
     local code = data.code
     local solved, msg, prints = doScenarioRun(code, currentENV)
@@ -136,8 +127,6 @@ function handeRuncodeResponse(data)
     printTerminal(output)
 end
 
---[[handleCloseResponse]]
----@param data table
 function handleCloseResponse(data)
     local code = data.code
     local timeup = data.timeout
@@ -160,16 +149,33 @@ function handleCloseResponse(data)
     hideTerminal()
 end
 
--- Threads and execution
+--------------------------------------------------------------------------------
+-- Events, Exports and Callbacks
+--------------------------------------------------------------------------------
 
 RegisterNUICallback("runCode", handeRuncodeResponse)
 RegisterNUICallback("close", handleCloseResponse)
 
 exports("TaskPlayerScenario", TaskPlayerScenario)
 
-RegisterCommand("scenario", function(source, args, rawCommand)
-    TaskPlayerScenario(tostring(args[1]), function(solved, statusMSG)
-        print(solved and "SUCCESS" or "FAILED")
-        print("MSG: "..statusMSG)
+RegisterNetEvent("f_codingminnigame:TaskPlayerScenario")
+AddEventHandler("f_codingminnigame:TaskPlayerScenario", function(TaskPlayerScenario, cb_event)
+    TaskPlayerScenario(TaskPlayerScenario, function(solved, statusMSG)
+        if cb_event and cb_event.name then
+            if cb_event.isServer then
+                TriggerServerEvent(cb_event.name, solved, statusMSG)
+            elseif cb_event.isClient and cb_event.cl then
+                TriggerEvent(cb_event.name, cb_event.cl, solved, statusMSG)
+            end
+        else
+            dbg("No callback-event found!")
+        end
     end)
 end)
+
+-- RegisterCommand("scenario", function(source, args, rawCommand)
+--     TaskPlayerScenario(tostring(args[1]), function(solved, statusMSG)
+--         print(solved and "SUCCESS" or "FAILED")
+--         print("MSG: "..statusMSG)
+--     end)
+-- end)

@@ -8,6 +8,12 @@ _G.Functions.__functionRegistry = {}
 -- Function Registry
 --------------------------------------------------------------------------------
 
+local function dbg(msg)
+    if Config.Debug then
+        print("[DEBUG] " .. msg)
+    end
+end
+
 --[[
     Function Registry
     ================
@@ -102,9 +108,11 @@ Functions.rightPunch.reset = function()
     Functions.rightPunch.__dataStore.seq   = {}
 end
 
--- -- -- --
 
+--------------------------------------------------------------------------------
 -- Registry registration
+--------------------------------------------------------------------------------
+
 _G.Functions.__functionRegistry = {
     ["forceTry"]      = Functions.forceTry,
     ["decreaseShield"]= Functions.decreaseShield,

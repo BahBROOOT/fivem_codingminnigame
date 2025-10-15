@@ -2,8 +2,12 @@
 -- Functions
 --------------------------------------------------------------------------------
 
---[[findScenarioById]]
----@param scenarioid string
+local function dbg(msg)
+    if Config.Debug then
+        print("[DEBUG] " .. msg)
+    end
+end
+
 function findScenarioById(scenarioid)
     for key, scenario in ipairs(LEGAL) do
         if scenario.id == scenarioid then
@@ -18,9 +22,6 @@ function findScenarioById(scenarioid)
     return nil
 end
 
---[[setupEnvForScenario]]
----@param envCFG table
----@param scenario table
 function setupEnvForScenario(envCFG, scenario)
     local env = envCFG
     local scenarioData = scenario
@@ -46,9 +47,6 @@ function setupEnvForScenario(envCFG, scenario)
     return env, scenarioData
 end
 
---[[runSnippetClientside]]
----@param snippet string
----@param envCFG table
 function runSnippetClientside(snippet, envCFG)
     local env = envCFG
     local captured = {}
@@ -59,7 +57,7 @@ function runSnippetClientside(snippet, envCFG)
             parts[#parts + 1] = tostring(select(i, ...))
         end
         captured[#captured + 1] = table.concat(parts, "\t")
-        --  print(table.concat(parts, "\t")) DEBUG!
+        dbg(table.concat(parts, "\t"))
     end
 
     local fn, err = load(snippet, "@challenge", "t", env--[[, env]])
