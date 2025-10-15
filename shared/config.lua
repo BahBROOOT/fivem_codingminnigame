@@ -2,6 +2,11 @@ Config = {}
 
 Config.Debug = true
 
+Config.ALLOWED_SERVER_CALLBACKS = {
+    ["myres:miniResult"] = true,
+    ["myres:otherCb"]    = true,
+}
+
 -- Safe Functions setup and init
 Config.SafeEnvs = {
     [1] = {

@@ -159,16 +159,27 @@ RegisterNUICallback("close", handleCloseResponse)
 exports("TaskPlayerScenario", TaskPlayerScenario)
 
 RegisterNetEvent("f_codingminnigame:TaskPlayerScenario")
-AddEventHandler("f_codingminnigame:TaskPlayerScenario", function(TaskPlayerScenario, cb_event)
-    TaskPlayerScenario(TaskPlayerScenario, function(solved, statusMSG)
-        if cb_event and cb_event.name then
-            if cb_event.isServer then
+AddEventHandler("f_codingminnigame:TaskPlayerScenario", function(scenario, cb_event)
+    TaskPlayerScenario(scenario, function(solved, statusMSG)
+        if type(cb_event) ~= "table" or type(cb_event.name) ~= "string" then
+            dbg("Invalid cb_event payload"); return
+        end
+
+        local target = cb_event.target -- "server" or "client"
+        if target == "server" then
+            if Config.ALLOWED_SERVER_CALLBACKS[cb_event.name] then
                 TriggerServerEvent(cb_event.name, solved, statusMSG)
-            elseif cb_event.isClient and cb_event.cl then
-                TriggerEvent(cb_event.name, cb_event.cl, solved, statusMSG)
+            else
+                dbg(("Blocked server callback: %s"):format(cb_event.name))
+            end
+        elseif target == "client" then
+            if cb_event.extra ~= nil then
+                TriggerEvent(cb_event.name, cb_event.extra, solved, statusMSG)
+            else
+                dbg("No valid client id!")
             end
         else
-            dbg("No callback-event found!")
+            dbg("No valid callback target specified")
         end
     end)
 end)

@@ -6,11 +6,11 @@ A polished, extendable coding terminal and task system for **FiveM**. Players so
 
 ## Features
 
-- **Modern terminal UI** (CodeMirror) with run/cancel, timer bar, line limit, and live console output.
-- **Sandboxed runtime** (`shared/config.lua`) exposing only trusted APIs (`math`, `string`, `table`, `vector3`, ...).
-- **Task system** via simple Lua tables in `tasks/legal-tasks.lua` and `tasks/illegal-tasks.lua`.
+- **Terminal UI** with run/cancel, timer bar, line limit, and live console output.
+- **Sandboxed ENV** (`shared/config.lua`) exposing only trusted functions (`math`, `string`, `table`, `vector3`, ...).
+- **Task system** via tables in `tasks/legal-tasks.lua` and `tasks/illegal-tasks.lua`.
 - **Function registry** (`client/func/func_regist.lua`) to expose reusable helpers with optional state + reset.
-- **Exports + command**: `exports("TaskPlayerScenario")` and `/scenario <id>` for quick testing.
+- **Exports + command**: `exports("TaskPlayerScenario")` and `/scenario <id>` for quick testing. (Command in scenario.lua - not bound to any restrictions)
 
 ---
 
