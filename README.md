@@ -1,6 +1,6 @@
 # Coding Minigame for FiveM — README
 
-A polished, extendable coding terminal and task system for **FiveM**. Players solve Lua challenges in a secure sandbox using a NUI editor. Admins can add new tasks and helper functions with a few lines of code.
+A coding terminal - task system for **FiveM**. Players solve Lua challenges in a secure sandbox using a NUI editor. Admins can add new tasks and helper functions with a few lines of code.
 
 ---
 
