@@ -151,15 +151,6 @@ Each env is metatables to `_G` to resolve anything not overridden; keep it tight
 
 ---
 
-## Tips
-
-- Use `beforeRun` to reset helper state; otherwise runs may leak state.
-- Limit lines (`maxLines`) and time (`time`) to tune difficulty.
-- Keep starter snippets short and focused.
-- Avoid exposing unsafe globals to the sandbox.
-
----
-
 ## License
 
 MIT — see header in the source file.
