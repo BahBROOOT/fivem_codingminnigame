@@ -128,26 +128,28 @@ function handeRuncodeResponse(data)
 end
 
 function handleCloseResponse(data)
-    local code = data.code
     local timeup = data.timeout
-    local returnMSG = ""
+
     if scenarioPromise then
+        local result
         if timeup then
-            local data = {
-                solved = solved,
+            result = {
+                solved = false,
                 statusmsg = "TIMEOUT"
             }
-            scenarioPromise:resolve(data)
         else
-            local data = {
+            result = {
                 solved = false,
                 statusmsg = "CANCEL"
             }
-            scenarioPromise:resolve(data)
         end
+
+        scenarioPromise:resolve(result)
     end
+
     hideTerminal()
 end
+
 
 --------------------------------------------------------------------------------
 -- Events, Exports and Callbacks
@@ -184,9 +186,9 @@ AddEventHandler("f_codingminnigame:TaskPlayerScenario", function(scenario, cb_ev
     end)
 end)
 
--- RegisterCommand("scenario", function(source, args, rawCommand)
---     TaskPlayerScenario(tostring(args[1]), function(solved, statusMSG)
---         print(solved and "SUCCESS" or "FAILED")
---         print("MSG: "..statusMSG)
---     end)
--- end)
+RegisterCommand("scenario", function(source, args, rawCommand)
+    TaskPlayerScenario(tostring(args[1]), function(solved, statusMSG)
+        print(solved and "SUCCESS" or "FAILED")
+        print("MSG: "..statusMSG)
+    end)
+end)

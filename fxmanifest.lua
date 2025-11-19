@@ -13,6 +13,12 @@ version '1.0.0'
 ]]
 lua54 'yes'
 
+files {
+    'nui/index.html',
+}
+
+ui_page 'nui/index.html'
+
 shared_scripts {
     'shared/*.lua',
 }
@@ -22,13 +28,3 @@ client_scripts {
     'tasks/*.lua',
     'client/*.lua',
 }
-
-server_scripts {
-    'server/*.lua',
-}
-
-files {
-    'nui/*.html',
-}
-
-ui_page 'nui/test.html'

@@ -4,17 +4,29 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Repair Terminal NUI — Polished</title>
+  <title>Repair Terminal NUI</title>
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
 
-  <!-- CodeMirror core + Lua mode + optional goodies -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css"/>
+  <!-- CodeMirror core + Lua mode + extras -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css"
+  />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/lua/lua.min.js"></script>
@@ -34,242 +46,614 @@
       --danger: #ff6b6b;
       --warning: #ffcc66;
       --ok: #a3ff12;
-      --border: rgba(255,255,255,0.09);
-      --glow: 0 0 0px rgba(93,216,255,0), 0 0 25px rgba(93,216,255,.08);
-      --shadow-xl: 0 20px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.02);
+      --border: rgba(255, 255, 255, 0.09);
+      --glow: 0 0 0px rgba(93, 216, 255, 0),
+        0 0 25px rgba(93, 216, 255, 0.08);
+      --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.55),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.02);
       --radius: 16px;
     }
 
     /* Alt theme: Matrix */
-    body.theme-matrix { --accent:#93ff7c; --accent-2:#5df0ff; --ok:#93ff7c; }
+    body.theme-matrix {
+      --accent: #93ff7c;
+      --accent-2: #5df0ff;
+      --ok: #93ff7c;
+    }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
     body {
       margin: 0;
-      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+        Consolas, "Liberation Mono", "Courier New", monospace;
       color: var(--text);
-      background: radial-gradient(1200px 800px at 80% -10%, rgba(93,216,255,.08), transparent),
-                  radial-gradient(900px 500px at 0% 120%, rgba(124,255,178,.06), transparent),
-                  linear-gradient(180deg, #070a11, #0a0f19 50%, #070a11 100%);
       overflow: hidden;
     }
 
     /* Subtle scanlines */
     body::after {
-      content: ""; position: fixed; inset: 0; pointer-events: none;
-      background: repeating-linear-gradient(transparent, transparent 2px, rgba(255,255,255,.02) 3px);
-      mix-blend-mode: soft-light; opacity: .5;
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.02) 3px
+      );
+      mix-blend-mode: soft-light;
+      opacity: 0.5;
     }
 
     /* Terminal frame */
     #terminal {
       position: fixed;
-      top: 8vh; left: 50%; transform: translateX(-50%);
-      width: min(1100px, 88vw); height: min(78vh, 900px);
-      display: none; /* hidden by default */
+      top: 8vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1100px, 88vw);
+      height: min(78vh, 900px);
+      display: none;
       flex-direction: column;
       background: linear-gradient(180deg, var(--panel-2), var(--panel));
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--glow), var(--shadow-xl);
       overflow: hidden;
-      user-select: none; /* restored selectively */
+      user-select: none;
     }
 
     /* Glowing border accent */
     #terminal::before {
-      content: ""; position: absolute; inset: 0; pointer-events: none;
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
       border-radius: var(--radius);
       padding: 1px;
-      background: linear-gradient(135deg, rgba(93,216,255,.45), rgba(124,255,178,.35) 30%, rgba(255,255,255,0) 60%);
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor; mask-composite: exclude;
+      background: linear-gradient(
+        135deg,
+        rgba(93, 216, 255, 0.45),
+        rgba(124, 255, 178, 0.35) 30%,
+        rgba(255, 255, 255, 0) 60%
+      );
+      -webkit-mask: linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
     }
 
     /* Header */
     #header {
       position: relative;
-      display: grid; grid-template-columns: 1fr auto auto; align-items: center;
-      gap: 12px; padding: 12px 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.06),
+        transparent
+      );
       border-bottom: 1px solid var(--border);
-      cursor: move; /* draggable */
-    }
-    .title {
-      font-weight: 700; letter-spacing: .6px; font-size: 14px;
-      text-transform: uppercase; color: #eaf6ff;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .title .led {
-      width: 8px; height: 8px; border-radius: 999px; background: var(--ok);
-      box-shadow: 0 0 8px var(--ok);
+      cursor: move;
     }
 
-    .status { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
+    .title {
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: #eaf6ff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
     .pill {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 10px; border-radius: 999px;
-      background: rgba(93,216,255,.09);
-      border: 1px solid rgba(93,216,255,.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(93, 216, 255, 0.09);
+      border: 1px solid rgba(93, 216, 255, 0.3);
       color: #cfefff;
     }
-    .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
 
-    .line-info { opacity: .9; }
+    .pill .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .line-info {
+      opacity: 0.9;
+    }
 
     /* Header buttons */
-    .window-controls { display: inline-flex; gap: 8px; }
-    .icon-btn {
-      display: inline-flex; align-items:center; justify-content:center;
-      width: 28px; height: 28px; border-radius: 8px;
-      border: 1px solid var(--border); background: #0c1426; color: var(--text);
-      font-size: 14px; cursor: pointer; transition: transform .06s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    .window-controls {
+      display: inline-flex;
+      gap: 8px;
     }
-    .icon-btn:hover { border-color: rgba(255,255,255,.25); }
-    .icon-btn:active { transform: translateY(1px); }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0c1426;
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer;
+      transition:
+        transform 0.06s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .icon-btn:active {
+      transform: translateY(1px);
+    }
 
     /* Time progress bar */
-    .timebar { position: relative; height: 4px; background: rgba(255,255,255,.06); }
-    .timebar .fill { position: absolute; height: 100%; width: 100%; left: 0; top: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .25s ease; }
+    .timebar {
+      position: relative;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+    }
 
-    /* Work area uses a resizable vertical splitter */
-    .workarea { flex: 1; display: grid; grid-template-rows: 1fr 8px minmax(90px, 26%); min-height: 0; }
-    .splitter { height: 8px; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); cursor: row-resize; position: relative; }
-    .splitter::after { content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 60px; height: 3px; border-radius: 99px; background: rgba(255,255,255,.12); }
+    .timebar .fill {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      left: 0;
+      top: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.25s ease;
+    }
+
+    /* Work area: vertical splitter layout */
+    .workarea {
+      flex: 1;
+      display: grid;
+      grid-template-rows: 1fr 8px minmax(90px, 26%);
+      min-height: 0;
+    }
+
+    .splitter {
+      height: 8px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.04),
+        rgba(255, 255, 255, 0.02)
+      );
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      cursor: row-resize;
+      position: relative;
+    }
+
+    .splitter::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 3px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.12);
+    }
 
     /* CodeMirror styling */
     .CodeMirror {
       height: 100%;
       background: #0c1220;
-      font-size: 14px; line-height: 1.55;
+      font-size: 14px;
+      line-height: 1.55;
       border-bottom: 1px solid var(--border);
-      user-select: text; /* re-enable */
+      user-select: text;
     }
-    .cm-s-material-darker.CodeMirror { background: #0c1220; color: #e6f2ff; }
-    .CodeMirror-gutters { background: #0c1220; border-right: 1px solid var(--border); }
-    .CodeMirror-linenumber { color: #5ea493; opacity: .9; }
-    .cm-s-material-darker .CodeMirror-cursor { border-left: 2px solid #e6f2ff; }
+
+    .cm-s-material-darker.CodeMirror {
+      background: #0c1220;
+      color: #e6f2ff;
+    }
+
+    .CodeMirror-gutters {
+      background: #0c1220;
+      border-right: 1px solid var(--border);
+    }
+
+    .CodeMirror-linenumber {
+      color: #5ea493;
+      opacity: 0.9;
+    }
+
+    .cm-s-material-darker .CodeMirror-cursor {
+      border-left: 2px solid #e6f2ff;
+    }
 
     /* Token colors */
-    .CodeMirror .cm-keyword    { color: #7fc1ff !important; font-weight: 600; }
-    .CodeMirror .cm-def        { color: #7cffb2 !important; }
-    .CodeMirror .cm-variable   { color: #cfe8ff !important; }
-    .CodeMirror .cm-variable-2 { color: #e8d27c !important; }
-    .CodeMirror .cm-string     { color: #ffb199 !important; }
-    .CodeMirror .cm-number     { color: #c2ffad !important; }
-    .CodeMirror .cm-comment    { color: #6ab676 !important; font-style: italic; }
+    .CodeMirror .cm-keyword {
+      color: #7fc1ff !important;
+      font-weight: 600;
+    }
+
+    .CodeMirror .cm-def {
+      color: #7cffb2 !important;
+    }
+
+    .CodeMirror .cm-variable {
+      color: #cfe8ff !important;
+    }
+
+    .CodeMirror .cm-variable-2 {
+      color: #e8d27c !important;
+    }
+
+    .CodeMirror .cm-string {
+      color: #ffb199 !important;
+    }
+
+    .CodeMirror .cm-number {
+      color: #c2ffad !important;
+    }
+
+    .CodeMirror .cm-comment {
+      color: #6ab676 !important;
+      font-style: italic;
+    }
 
     /* Console */
     #console {
       background: linear-gradient(180deg, #0a0f1b, #0a0f1b 60%, #090e19);
-      color: #d6e5ff; padding: 10px 12px; overflow-y: auto; overflow-x: hidden;
-      font-size: 13px; letter-spacing: .2px;
+      color: #d6e5ff;
+      padding: 10px 12px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-size: 13px;
+      letter-spacing: 0.2px;
     }
-    #console .line { padding: 2px 0; white-space: pre-wrap; word-break: break-word; }
-    #console .line .ts { color: var(--muted); opacity: .8; margin-right: 8px; }
-    #console .ok { color: var(--ok); }
-    #console .warn { color: var(--warning); }
-    #console .err { color: var(--danger); }
+
+    #console .line {
+      padding: 2px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    #console .line .ts {
+      color: var(--muted);
+      opacity: 0.8;
+      margin-right: 8px;
+    }
+
+    #console .ok {
+      color: var(--ok);
+    }
+
+    #console .warn {
+      color: var(--warning);
+    }
+
+    #console .err {
+      color: var(--danger);
+    }
 
     /* Footer */
     #footer {
-      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px;
-      padding: 10px 12px; border-top: 1px solid var(--border);
-      background: linear-gradient(180deg, transparent, rgba(255,255,255,.04));
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(
+        180deg,
+        transparent,
+        rgba(255, 255, 255, 0.04)
+      );
     }
-    .hint { color: var(--muted); font-size: 12px; opacity: .9; }
 
-    .btns { display: flex; gap: 8px; align-items:center; }
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .btns {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
     button {
-      padding: 8px 14px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
-      background: #0c1426; color: var(--text); font-size: 14px; font-weight: 600;
-      transition: transform .06s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      background: #0c1426;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      transition:
+        transform 0.06s ease,
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
     }
-    button:hover { border-color: rgba(255,255,255,.25); }
-    button:active { transform: translateY(1px); }
 
-    .btn-primary { background: linear-gradient(180deg, rgba(93,216,255,.25), rgba(93,216,255,.15)); border-color: rgba(93,216,255,.45); box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 20px rgba(93,216,255,.08) inset; }
-    .btn-primary:hover { box-shadow: 0 0 30px rgba(93,216,255,.18) inset; }
+    button:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
 
-    .btn-ghost { background: #0c1426; }
-    .btn-danger { background: linear-gradient(180deg, rgba(255,107,107,.18), rgba(255,107,107,.1)); border-color: rgba(255,107,107,.5); }
+    button:active {
+      transform: translateY(1px);
+    }
 
-    .chip { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:#0c1426; font-size:12px; color:var(--muted); }
+    .btn-primary {
+      background: linear-gradient(
+        180deg,
+        rgba(93, 216, 255, 0.25),
+        rgba(93, 216, 255, 0.15)
+      );
+      border-color: rgba(93, 216, 255, 0.45);
+      box-shadow:
+        0 0 0 rgba(0, 0, 0, 0),
+        0 0 20px rgba(93, 216, 255, 0.08) inset;
+    }
 
-    .timeout #header .pill, .timeout #footer { filter: saturate(1.1); }
-    .timeout { box-shadow: 0 0 0 rgba(0,0,0,0), 0 0 30px rgba(255,107,107,.15), inset 0 0 0 1px rgba(255,255,255,.02); }
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(93, 216, 255, 0.18) inset;
+    }
+
+    .btn-ghost {
+      background: #0c1426;
+    }
+
+    .btn-danger {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 107, 107, 0.18),
+        rgba(255, 107, 107, 0.1)
+      );
+      border-color: rgba(255, 107, 107, 0.5);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0c1426;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .timeout #header .pill,
+    .timeout #footer {
+      filter: saturate(1.1);
+    }
+
+    .timeout {
+      box-shadow:
+        0 0 0 rgba(0, 0, 0, 0),
+        0 0 30px rgba(255, 107, 107, 0.15),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
 
     /* Scrollbars (WebKit) */
-    #console::-webkit-scrollbar, .CodeMirror-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-    #console::-webkit-scrollbar-thumb, .CodeMirror-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 10px; }
-    #console::-webkit-scrollbar-track, .CodeMirror-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,.04); }
+    #console::-webkit-scrollbar,
+    .CodeMirror-scroll::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    #console::-webkit-scrollbar-thumb,
+    .CodeMirror-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+    }
+
+    #console::-webkit-scrollbar-track,
+    .CodeMirror-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+    }
 
     @media (max-width: 720px) {
-      #terminal { width: 94vw; top: 6vh; height: 72vh; }
-      .hint { display: none; }
+      #terminal {
+        width: 94vw;
+        top: 6vh;
+        height: 72vh;
+      }
+
+      .hint {
+        display: none;
+      }
     }
 
     /* ===================== DEBUG PANEL ===================== */
     #debugPanel {
-      position: fixed; right: 12px; bottom: 12px; z-index: 9999;
-      display: none; gap: 8px; align-items: stretch;
-      background: rgba(17,24,41,.85); backdrop-filter: blur(6px);
-      border: 1px solid var(--border); border-radius: 12px; padding: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-      color: var(--text); font-size: 12px;
+      position: fixed;
+      right: 12px;
+      bottom: 12px;
+      z-index: 9999;
+      display: none;
+      gap: 8px;
+      align-items: stretch;
+      background: rgba(17, 24, 41, 0.85);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      color: var(--text);
+      font-size: 12px;
     }
-    #debugPanel .group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    #debugPanel label { opacity: .8; }
-    #debugPanel select, #debugPanel button { font-family: inherit; font-size: 12px; }
+
+    #debugPanel .group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #debugPanel label {
+      opacity: 0.8;
+    }
+
+    #debugPanel select,
+    #debugPanel button {
+      font-family: inherit;
+      font-size: 12px;
+    }
+
     #debugToggle {
-      position: fixed; right: 12px; bottom: calc(12px + 56px); z-index: 9999;
-      display: none; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border);
-      background: #0c1426; color: var(--text); cursor: pointer; font-weight: 700;
+      position: fixed;
+      right: 12px;
+      bottom: calc(12px + 56px);
+      z-index: 9999;
+      display: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0c1426;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
     }
 
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
-      .timebar .fill { transition: none; }
-      button { transition: none; }
+      .timebar .fill {
+        transition: none;
+      }
+
+      button {
+        transition: none;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="terminal" aria-label="Repair Terminal" role="dialog" aria-modal="true">
+  <div
+    id="terminal"
+    aria-label="Repair Terminal"
+    role="dialog"
+    aria-modal="true"
+  >
     <div id="header" aria-label="Window header (drag to move)">
       <div class="title">
-        <span class="led" aria-hidden="true"></span>
         <span id="title">TERMINAL</span>
-        <span id="wrapChip" class="chip" title="Toggle line wrap">Wrap: OFF</span>
-        <span id="fontChip" class="chip" title="Font size">Font: 14px</span>
+        <!-- <span id="wrapChip" class="chip" title="Toggle line wrap">Wrap: OFF</span> -->
+        <!-- <span id="fontChip" class="chip" title="Font size">Font: 14px</span> -->
       </div>
+
       <div class="status">
-        <span class="pill" title="Timer"><span class="dot" aria-hidden="true"></span><span id="timer">No time limit</span></span>
+        <span class="pill" title="Timer">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="timer">No time limit</span>
+        </span>
         <span class="line-info" id="lineInfo"></span>
       </div>
+
       <div class="window-controls">
-        <button id="btnTheme" class="icon-btn" aria-label="Toggle theme" title="Theme">🎨</button>
-        <button id="btnMin" class="icon-btn" aria-label="Minimize" title="Minimize">➖</button>
-        <button id="btnCloseTop" class="icon-btn" aria-label="Close" title="Close">✕</button>
+        <!-- <button
+          id="btnTheme"
+          class="icon-btn"
+          aria-label="Toggle theme"
+          title="Theme"
+        >
+          🎨
+        </button> -->
+        <!-- <button
+          id="btnMin"
+          class="icon-btn"
+          aria-label="Minimize"
+          title="Minimize"
+        >
+          ➖
+        </button>
+        <button
+          id="btnCloseTop"
+          class="icon-btn"
+          aria-label="Close"
+          title="Close"
+        >
+          ✕
+        </button> -->
       </div>
     </div>
-    <div class="timebar" id="timebar" aria-hidden="true"><div class="fill" id="timeFill"></div></div>
+
+    <div class="timebar" id="timebar" aria-hidden="true">
+      <div class="fill" id="timeFill"></div>
+    </div>
 
     <div class="workarea" id="workarea">
       <textarea id="editor" placeholder="-- Write your Lua code here..."></textarea>
-      <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal" aria-label="Resize console"></div>
-      <div id="console" role="log" aria-live="polite" aria-atomic="false"></div>
+      <div
+        class="splitter"
+        id="splitter"
+        role="separator"
+        aria-orientation="horizontal"
+        aria-label="Resize console"
+      ></div>
+      <div
+        id="console"
+        role="log"
+        aria-live="polite"
+        aria-atomic="false"
+      ></div>
     </div>
 
     <div id="footer">
-      <div class="hint">Ctrl + Enter to run • Ctrl + R to reset • Esc to close • Shift + D to toggle debug • Alt + +/− font</div>
+      <div class="hint">
+        Ctrl + Enter to run • Ctrl + R to reset • Esc to close •  Alt + +/− font
+      </div>
       <div class="btns">
         <button id="copyBtn" class="btn-ghost" title="Copy code">Copy</button>
-        <button id="downloadBtn" class="btn-ghost" title="Download .lua">Download</button>
-        <button id="resetBtn" class="btn-ghost" title="Reset (Ctrl+R)">Reset ↻</button>
-        <button id="runBtn" class="btn-primary" title="Run (Ctrl+Enter)">Run ▶</button>
-        <button id="closeBtn" class="btn-danger" title="Close (Esc)">Close ✕</button>
+        <!-- <button id="downloadBtn" class="btn-ghost" title="Download .lua">
+          Download
+        </button> -->
+        <button id="resetBtn" class="btn-ghost" title="Reset (Ctrl+R)">
+          Reset ↻
+        </button>
+        <button id="runBtn" class="btn-primary" title="Run (Ctrl+Enter)">
+          Run ▶
+        </button>
+        <button id="closeBtn" class="btn-danger" title="Close (Esc)">
+          Close ✕
+        </button>
       </div>
     </div>
   </div>
@@ -288,432 +672,681 @@
       <button id="btnTimeout">Trigger timeout</button>
       <button id="btnTimer60">Timer 60s</button>
       <button id="btnMax6">Set max 6 lines</button>
-      <label><input type="checkbox" id="autoRunChk"> Auto-run on change</label>
+      <label>
+        <input type="checkbox" id="autoRunChk" /> Auto-run on change
+      </label>
     </div>
   </div>
+
   <button id="debugToggle">DEBUG</button>
 
   <script>
-    // === Runtime state ===
-    let initialSnippet = '';
-    let maxLines       = null;        // line-limit
-    let countdown      = 0;           // seconds left
-    let totalDuration  = 0;           // original seconds (for progress)
-    let timerInterval  = null;        // setInterval handle
+    "use strict";
 
-    const terminalEl   = document.getElementById('terminal');
-    const headerEl     = document.getElementById('header');
-    const timerEl      = document.getElementById('timer');
-    const timebarEl    = document.getElementById('timebar');
-    const timeFillEl   = document.getElementById('timeFill');
-    const lineInfoEl   = document.getElementById('lineInfo');
-    const consoleEl    = document.getElementById('console');
-    const workareaEl   = document.getElementById('workarea');
-    const splitterEl   = document.getElementById('splitter');
+    /* ===================== RUNTIME STATE ===================== */
 
-    // --- Initialise CodeMirror ---
-    const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
-      mode: 'lua', theme: 'material-darker', lineNumbers: true, styleActiveLine: true,
-      matchBrackets: true, indentUnit: 2, tabSize: 2, indentWithTabs: false,
-      lineWrapping: false,
-    });
+    let initialSnippet = "";
+    let maxLines = null;
+    let countdown = 0;
+    let totalDuration = 0;
+    let timerInterval = null;
 
-    function setEditorFont(px){
-      editor.getWrapperElement().style.fontSize = px + 'px';
-      document.getElementById('fontChip').textContent = 'Font: ' + px + 'px';
+    /* ===================== DOM REFERENCES ===================== */
+
+    const terminalEl = document.getElementById("terminal");
+    const headerEl = document.getElementById("header");
+    const timerEl = document.getElementById("timer");
+    const timebarEl = document.getElementById("timebar");
+    const timeFillEl = document.getElementById("timeFill");
+    const lineInfoEl = document.getElementById("lineInfo");
+    const consoleEl = document.getElementById("console");
+    const workareaEl = document.getElementById("workarea");
+    const splitterEl = document.getElementById("splitter");
+
+    const runBtn = document.getElementById("runBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    // const downloadBtn = document.getElementById("downloadBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    // const closeTopBtn = document.getElementById("btnCloseTop");
+    // const themeBtn = document.getElementById("btnTheme");
+    // const btnMin = document.getElementById("btnMin");
+    // const wrapChip = document.getElementById("wrapChip");
+    // const fontChip = document.getElementById("fontChip");
+
+    const autoRunChk = document.getElementById("autoRunChk");
+    const debugPanel = document.getElementById("debugPanel");
+    const debugToggle = document.getElementById("debugToggle");
+    const scenarioSel = document.getElementById("scenarioSel");
+
+    /* ===================== CODEMIRROR INIT ===================== */
+
+    const editor = CodeMirror.fromTextArea(
+      document.getElementById("editor"),
+      {
+        mode: "lua",
+        theme: "material-darker",
+        lineNumbers: true,
+        styleActiveLine: true,
+        matchBrackets: true,
+        indentUnit: 2,
+        tabSize: 2,
+        indentWithTabs: false,
+        lineWrapping: false
+      }
+    );
+
+    function setEditorFont(px) {
+      editor.getWrapperElement().style.fontSize = px + "px";
+      // fontChip.textContent = "Font: " + px + "px";
       editor.refresh();
     }
+
     setEditorFont(14);
 
-    // Line info helper
-    function updateLineInfo () {
+    function updateLineInfo() {
       const current = editor.lineCount();
-      lineInfoEl.textContent = maxLines ? `Lines: ${current} / ${maxLines}` : `Lines: ${current}`;
+      lineInfoEl.textContent = maxLines
+        ? "Lines: " + current + " / " + maxLines
+        : "Lines: " + current;
     }
-    editor.on('change', updateLineInfo);
+
+    editor.on("change", updateLineInfo);
 
     // Optional auto-run (debug)
-    const autoRunChk = document.getElementById('autoRunChk');
-    editor.on('change', () => {
+    editor.on("change", function () {
       if (autoRunChk && autoRunChk.checked) {
         clearTimeout(editor.__autoRunT);
-        editor.__autoRunT = setTimeout(()=>document.getElementById('runBtn').click(), 400);
+        editor.__autoRunT = setTimeout(function () {
+          runBtn.click();
+        }, 400);
       }
     });
 
     // Enforce maximum line count before the change is applied
-    editor.on('beforeChange', (cm, change) => {
+    editor.on("beforeChange", function (cm, change) {
       if (maxLines === null) return;
+
       const current = cm.lineCount();
       const incomingLines = change.text.length - 1;
       const replacedLines = change.to.line - change.from.line;
-      const futureTotal   = current + incomingLines - replacedLines;
+      const futureTotal = current + incomingLines - replacedLines;
 
       if (futureTotal > maxLines) {
         const allowedLines = maxLines - (current - replacedLines);
+
         if (allowedLines <= 0) {
           change.cancel();
         } else {
-          const kept = change.text.slice(0, allowedLines).join('\n').replace(/\n/g, ' ');
+          const kept = change.text
+            .slice(0, allowedLines)
+            .join("\n")
+            .replace(/\n/g, " ");
           change.update(change.from, change.to, [kept]);
         }
       }
     });
 
-    // Helper Timer
-    function updateTimerDisplay () {
-      const m = Math.floor(countdown / 60).toString().padStart(2, '0');
-      const s = (countdown % 60).toString().padStart(2, '0');
-      timerEl.textContent = `${m}:${s}`;
+    /* ===================== TIMER ===================== */
+
+    function updateTimerDisplay() {
+      const m = Math.floor(countdown / 60)
+        .toString()
+        .padStart(2, "0");
+      const s = (countdown % 60).toString().padStart(2, "0");
+      timerEl.textContent = m + ":" + s;
 
       if (totalDuration > 0) {
         const pct = Math.max(0, Math.min(1, countdown / totalDuration));
-        timeFillEl.style.width = `${pct * 100}%`;
+        timeFillEl.style.width = (pct * 100) + "%";
       }
     }
 
-    function startCountdown (seconds) {
+    function startCountdown(seconds) {
       clearInterval(timerInterval);
       totalDuration = seconds;
       countdown = seconds;
 
-      // Progress bar visibility
-      timebarEl.style.display = seconds > 0 ? 'block' : 'none';
-      terminalEl.classList.remove('timeout');
+      timebarEl.style.display = seconds > 0 ? "block" : "none";
+      terminalEl.classList.remove("timeout");
 
       if (countdown <= 0) {
-        timerEl.textContent = '∞';
+        timerEl.textContent = "∞";
         return;
       }
 
       updateTimerDisplay();
-      timerInterval = setInterval(() => {
+
+      timerInterval = setInterval(function () {
         countdown--;
+
         if (countdown <= 0) {
           clearInterval(timerInterval);
-          timerEl.textContent = '00:00';
-          timeFillEl.style.width = '0%';
-          terminalEl.classList.add('timeout');
-          sendNui('close', { code: editor.getValue(), timeout: true });
+          timerEl.textContent = "00:00";
+          timeFillEl.style.width = "0%";
+          terminalEl.classList.add("timeout");
+          sendNui("close", { code: editor.getValue(), timeout: true });
         } else {
           updateTimerDisplay();
         }
       }, 1000);
     }
 
-    // Hide terminal initially
-    terminalEl.style.display = 'none';
+    /* ===================== TERMINAL SHOW/HIDE ===================== */
 
-    // NUI message listener
-    window.addEventListener('message', (event) => {
-      const msg = event.data;
-      if (msg.action === 'showTerminal') {
-        terminalEl.style.display = 'flex';
-        terminalEl.classList.remove('timeout');
+    terminalEl.style.display = "none";
 
-        editor.setValue(msg.scenario.snippet || '-- code here');
-        editor.refresh();
-
-        initialSnippet = msg.scenario.snippet || '-- code here';
-        maxLines       = msg.scenario.maxLines || null;
-
-        // Header text
-        const titleEl = document.getElementById('title');
-        titleEl.innerText = `${msg.scenario.scenario || 'TERMINAL'} ${msg.scenario.goal || ''}`.trim();
-
-        // Reset console
-        consoleEl.innerText = '';
-
-        // Start timer
-        startCountdown(msg.scenario.time || 0);
-
-        // Update line info
-        updateLineInfo();
-      }
-      else if (msg.action === 'hideTerminal') {
-        hideTerminal();
-      }
-      else if (msg.action === 'printTerminal') {
-        addConsoleLine(String(msg.msg || ''));
-      }
-    });
-
-    function hideTerminal(){
-      terminalEl.style.display = 'none';
-      editor.setValue('');
-      consoleEl.innerText = '';
+    function hideTerminal() {
+      terminalEl.style.display = "none";
+      editor.setValue("");
+      consoleEl.innerText = "";
       maxLines = null;
+
       clearInterval(timerInterval);
       timerInterval = null;
-      timerEl.textContent = 'No time limit';
-      timeFillEl.style.width = '100%';
+
+      timerEl.textContent = "No time limit";
+      timeFillEl.style.width = "100%";
     }
 
-    function addConsoleLine(text, level = 'info') {
-      const line = document.createElement('div');
-      line.className = 'line';
-      const ts = document.createElement('span');
-      ts.className = 'ts';
+    /* ===================== CONSOLE ===================== */
+
+    function addConsoleLine(text, level) {
+      level = level || "info";
+
+      const line = document.createElement("div");
+      line.className = "line";
+
+      const ts = document.createElement("span");
+      ts.className = "ts";
+
       const now = new Date();
-      ts.textContent = `[${now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}]`;
-      const msgSpan = document.createElement('span');
-      if (level === 'ok') msgSpan.className = 'ok';
-      if (level === 'warn') msgSpan.className = 'warn';
-      if (level === 'err') msgSpan.className = 'err';
-      msgSpan.textContent = ' ' + text;
+      ts.textContent = "[" + now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      }) + "]";
+
+      const msgSpan = document.createElement("span");
+
+      if (level === "ok") msgSpan.className = "ok";
+      if (level === "warn") msgSpan.className = "warn";
+      if (level === "err") msgSpan.className = "err";
+
+      msgSpan.textContent = " " + text;
+
       line.appendChild(ts);
       line.appendChild(msgSpan);
+
       consoleEl.appendChild(line);
       consoleEl.scrollTop = consoleEl.scrollHeight;
     }
 
-    // Helper: send data back (FiveM or Debug fallback)
-    const IS_FIVEM = typeof GetParentResourceName === 'function';
+    /* ===================== NUI COMMUNICATION ===================== */
+
+    const IS_FIVEM = typeof GetParentResourceName === "function";
     const DEBUG = !IS_FIVEM || /[?&]debug=1\b/i.test(location.search);
 
-    const sendNui = (type, payload) => {
+    function sendNui(type, payload) {
       if (IS_FIVEM) {
-        fetch(`https://${GetParentResourceName()}/${type}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        fetch("https://" + GetParentResourceName() + "/" + type, {
+          method: "POST",
+          headers: { "Content-Type": "application/json; charset=UTF-8" },
           body: JSON.stringify(payload)
         });
       } else {
-        // Debug emulation
         handleDebugNui(type, payload);
       }
-    };
-
-    // --- Button handlers & shortcuts ---
-    document.getElementById('runBtn').addEventListener('click', () => {
-      consoleEl.innerText = '';
-      sendNui('runCode', { code: editor.getValue() });
-    });
-
-    function copyToClipboard(text){
-      navigator.clipboard?.writeText(text).then(()=>{
-        addConsoleLine('Code copied to clipboard', 'ok');
-      }).catch(()=>addConsoleLine('Clipboard permission denied', 'warn'));
     }
 
-    document.getElementById('copyBtn').addEventListener('click', ()=> copyToClipboard(editor.getValue()));
+    window.addEventListener("message", function (event) {
+      const msg = event.data;
 
-    document.getElementById('downloadBtn').addEventListener('click', ()=>{
-      const blob = new Blob([editor.getValue()], {type:'text/plain'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'solution.lua';
-      a.click();
-      URL.revokeObjectURL(a.href);
+      if (msg.action === "showTerminal") {
+        terminalEl.style.display = "flex";
+        terminalEl.classList.remove("timeout");
+
+        editor.setValue(msg.scenario.snippet || "-- code here");
+        editor.refresh();
+
+        initialSnippet = msg.scenario.snippet || "-- code here";
+        maxLines = msg.scenario.maxLines || null;
+
+        const titleEl = document.getElementById("title");
+        titleEl.innerText = (
+          (msg.scenario.scenario || "TERMINAL") + " " +
+          (msg.scenario.goal || "")
+        ).trim();
+
+        consoleEl.innerText = "";
+
+        startCountdown(msg.scenario.time || 0);
+        updateLineInfo();
+      } else if (msg.action === "hideTerminal") {
+        hideTerminal();
+      } else if (msg.action === "printTerminal") {
+        addConsoleLine(String(msg.msg || ""));
+      }
     });
 
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      editor.setValue(initialSnippet || '-- code here');
-      consoleEl.innerText = '';
-      updateLineInfo();
-    });
+    /* ===================== BUTTONS & SHORTCUTS ===================== */
 
-    function doClose(){
-      consoleEl.innerText = '';
-      sendNui('close', { code: editor.getValue() });
+    function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard
+          .writeText(text)
+          .then(function () {
+            addConsoleLine("Code copied to clipboard", "ok");
+          })
+          .catch(function () {
+            addConsoleLine("Clipboard permission denied", "warn");
+          });
+      } else {
+        // Fallback for older browsers / CEF
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        try {
+          const ok = document.execCommand("copy");
+          addConsoleLine(
+            ok ? "Code copied to clipboard" : "Clipboard unsupported",
+            ok ? "ok" : "warn"
+          );
+        } catch (e) {
+          addConsoleLine("Clipboard unsupported", "warn");
+        }
+
+        document.body.removeChild(textarea);
+      }
     }
 
-    document.getElementById('closeBtn').addEventListener('click', doClose);
-    document.getElementById('btnCloseTop').addEventListener('click', doClose);
+    function doClose() {
+      consoleEl.innerText = "";
+      sendNui("close", { code: editor.getValue() });
+    }
 
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-        event.preventDefault();
-        document.getElementById('runBtn').click();
-      }
-      if ((event.ctrlKey || event.metaKey) && (event.key === 'r' || event.key === 'R')) {
-        event.preventDefault();
-        document.getElementById('resetBtn').click();
-      }
-      if (event.shiftKey && (event.key === 'D' || event.key === 'd')) {
-        event.preventDefault();
-        toggleDebugPanel();
-      }
-      // font size: Alt + +/-
-      if (event.altKey && (event.key === '+' || event.key === '=')) { event.preventDefault(); bumpFont(+1); }
-      if (event.altKey && (event.key === '-' || event.key === '_')) { event.preventDefault(); bumpFont(-1); }
-    });
-
-    function bumpFont(delta){
-      const cur = parseInt(editor.getWrapperElement().style.fontSize||'14',10);
+    function bumpFont(delta) {
+      const cur = parseInt(
+        editor.getWrapperElement().style.fontSize || "14",
+        10
+      );
       const next = Math.min(22, Math.max(10, cur + delta));
       setEditorFont(next);
     }
 
-    // ESC key -> close
-    document.addEventListener('keyup', (event) => {
-      if (event.key === 'Escape') doClose();
+    function updateWrapChip() {
+      // wrapChip.textContent =
+      //   "Wrap: " + (editor.getOption("lineWrapping") ? "ON" : "OFF");
+    }
+
+    runBtn.addEventListener("click", function () {
+      consoleEl.innerText = "";
+      sendNui("runCode", { code: editor.getValue() });
+    });
+
+    copyBtn.addEventListener("click", function () {
+      copyToClipboard(editor.getValue());
+    });
+
+    // downloadBtn.addEventListener("click", function () {
+    //   const blob = new Blob([editor.getValue()], { type: "text/plain" });
+    //   const a = document.createElement("a");
+    //   a.href = URL.createObjectURL(blob);
+    //   a.download = "solution.lua";
+    //   a.click();
+    //   URL.revokeObjectURL(a.href);
+    // });
+
+    resetBtn.addEventListener("click", function () {
+      editor.setValue(initialSnippet || "-- code here");
+      consoleEl.innerText = "";
+      updateLineInfo();
+    });
+
+    closeBtn.addEventListener("click", doClose);
+    // closeTopBtn.addEventListener("click", doClose);
+
+    // Keyboard shortcuts
+    document.addEventListener("keydown", function (event) {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        runBtn.click();
+      }
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        (event.key === "r" || event.key === "R")
+      ) {
+        event.preventDefault();
+        resetBtn.click();
+      }
+
+      // if (event.shiftKey && (event.key === "D" || event.key === "d")) {
+      //   event.preventDefault();
+      //   toggleDebugPanel();
+      // }
+
+      // Font size: Alt + +/-
+      if (event.altKey && (event.key === "+" || event.key === "=")) {
+        event.preventDefault();
+        bumpFont(1);
+      }
+      if (event.altKey && (event.key === "-" || event.key === "_")) {
+        event.preventDefault();
+        bumpFont(-1);
+      }
+    });
+
+    // ESC -> close
+    document.addEventListener("keyup", function (event) {
+      if (event.key === "Escape") doClose();
     });
 
     // Line wrap toggle
-    const wrapChip = document.getElementById('wrapChip');
-    function updateWrapChip(){ wrapChip.textContent = 'Wrap: ' + (editor.getOption('lineWrapping') ? 'ON' : 'OFF'); }
-    updateWrapChip();
-    wrapChip.addEventListener('click', ()=>{ editor.setOption('lineWrapping', !editor.getOption('lineWrapping')); updateWrapChip(); });
+    // updateWrapChip();
+
+    // wrapChip.addEventListener("click", function () {
+    //   editor.setOption(
+    //     "lineWrapping",
+    //     !editor.getOption("lineWrapping")
+    //   );
+    //   updateWrapChip();
+    // });
 
     // Theme toggle
-    document.getElementById('btnTheme').addEventListener('click', ()=>{
-      document.body.classList.toggle('theme-matrix');
-    });
+    // themeBtn.addEventListener("click", function () {
+    //   document.body.classList.toggle("theme-matrix");
+    // });
 
-    // Minimize (collapse console area to a thin bar)
-    const btnMin = document.getElementById('btnMin');
+    // Minimize (collapse console area)
     let minimized = false;
-    btnMin.addEventListener('click', ()=>{
-      minimized = !minimized;
-      workareaEl.style.gridTemplateRows = minimized ? '1fr 8px 0' : '1fr 8px minmax(90px, 26%)';
-      btnMin.textContent = minimized ? '➕' : '➖';
-    });
 
-    // ===================== Drag to move the window =====================
-    let drag = {active:false, offX:0, offY:0};
-    headerEl.addEventListener('mousedown', (e)=>{
-      if (e.target.closest('.window-controls')) return; // don't drag when clicking buttons
+    // btnMin.addEventListener("click", function () {
+    //   minimized = !minimized;
+    //   workareaEl.style.gridTemplateRows = minimized
+    //     ? "1fr 8px 0"
+    //     : "1fr 8px minmax(90px, 26%)";
+    //   btnMin.textContent = minimized ? "➕" : "➖";
+    // });
+
+    /* ===================== DRAG TO MOVE WINDOW ===================== */
+
+    const drag = { active: false, offX: 0, offY: 0 };
+
+    headerEl.addEventListener("mousedown", function (e) {
+      if (e.target.closest(".window-controls")) return;
+
       drag.active = true;
-      const rect = terminalEl.getBoundingClientRect();
-      drag.offX = e.clientX - rect.left; drag.offY = e.clientY - rect.top;
-      // switch to left/top positioning (drop translateX)
-      terminalEl.style.left = rect.left + 'px';
-      terminalEl.style.top  = rect.top + 'px';
-      terminalEl.style.transform = 'none';
-      document.body.style.userSelect = 'none';
-    });
-    window.addEventListener('mousemove', (e)=>{
-      if (!drag.active) return;
-      const vw = window.innerWidth, vh = window.innerHeight;
-      const w = terminalEl.offsetWidth, h = terminalEl.offsetHeight;
-      let x = Math.min(vw - 16, Math.max(16 - 0, e.clientX - drag.offX));
-      let y = Math.min(vh - 16, Math.max(16 - 0, e.clientY - drag.offY));
-      terminalEl.style.left = x + 'px';
-      terminalEl.style.top  = y + 'px';
-    });
-    window.addEventListener('mouseup', ()=>{ drag.active = false; document.body.style.userSelect = ''; });
 
-    // ===================== Vertical splitter =====================
+      const rect = terminalEl.getBoundingClientRect();
+      drag.offX = e.clientX - rect.left;
+      drag.offY = e.clientY - rect.top;
+
+      terminalEl.style.left = rect.left + "px";
+      terminalEl.style.top = rect.top + "px";
+      terminalEl.style.transform = "none";
+
+      document.body.style.userSelect = "none";
+    });
+
+    window.addEventListener("mousemove", function (e) {
+      if (!drag.active) return;
+
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      let x = Math.min(vw - 16, Math.max(16, e.clientX - drag.offX));
+      let y = Math.min(vh - 16, Math.max(16, e.clientY - drag.offY));
+
+      terminalEl.style.left = x + "px";
+      terminalEl.style.top = y + "px";
+    });
+
+    window.addEventListener("mouseup", function () {
+      drag.active = false;
+      document.body.style.userSelect = "";
+    });
+
+    /* ===================== VERTICAL SPLITTER ===================== */
+
     let splitDrag = false;
-    splitterEl.addEventListener('mousedown', ()=>{ splitDrag = true; document.body.style.userSelect='none'; });
-    window.addEventListener('mouseup', ()=>{ splitDrag = false; document.body.style.userSelect=''; });
-    window.addEventListener('mousemove', (e)=>{
+
+    splitterEl.addEventListener("mousedown", function () {
+      splitDrag = true;
+      document.body.style.userSelect = "none";
+    });
+
+    window.addEventListener("mouseup", function () {
+      splitDrag = false;
+      document.body.style.userSelect = "";
+    });
+
+    window.addEventListener("mousemove", function (e) {
       if (!splitDrag) return;
+
       const rect = workareaEl.getBoundingClientRect();
-      const topHeight = Math.max(120, Math.min(rect.height - 80, e.clientY - rect.top));
+      const topHeight = Math.max(
+        120,
+        Math.min(rect.height - 80, e.clientY - rect.top)
+      );
       const bottom = rect.height - topHeight - splitterEl.offsetHeight;
-      workareaEl.style.gridTemplateRows = `${topHeight}px 8px ${bottom}px`;
+
+      workareaEl.style.gridTemplateRows = topHeight + "px 8px " + bottom + "px";
       editor.refresh();
     });
 
     /* ===================== DEBUG UTILITIES ===================== */
+
     const SCENARIOS = [
       {
-        id: 'basic',
-        name: 'Basic (no limit)',
-        scenario: { scenario: 'Repair Terminal', goal: '— Basic Test', time: 0, maxLines: null, snippet: `-- Fix function to pass tests\nlocal function add(a,b)\n  return a + b\nend\n\nprint(add(2,3)) -- 5` }
+        id: "basic",
+        name: "Basic (no limit)",
+        scenario: {
+          scenario: "Repair Terminal",
+          goal: "— Basic Test",
+          time: 0,
+          maxLines: null,
+          snippet:
+            "-- Fix function to pass tests\n" +
+            "local function add(a,b)\n" +
+            "  return a + b\n" +
+            "end\n\n" +
+            "print(add(2,3)) -- 5"
+        }
       },
       {
-        id: 'limit6',
-        name: 'Line limit (6) + 90s',
-        scenario: { scenario: 'Repair Terminal', goal: '— 6 lines only', time: 90, maxLines: 6, snippet: `-- Only 6 lines allowed\nlocal x = 1\nlocal y = 2\nlocal function sum(a,b) return a+b end\nprint(sum(x,y))\n-- done` }
+        id: "limit6",
+        name: "Line limit (6) + 90s",
+        scenario: {
+          scenario: "Repair Terminal",
+          goal: "— 6 lines only",
+          time: 90,
+          maxLines: 6,
+          snippet:
+            "-- Only 6 lines allowed\n" +
+            "local x = 1\n" +
+            "local y = 2\n" +
+            "local function sum(a,b) return a+b end\n" +
+            "print(sum(x,y))\n" +
+            "-- done"
+        }
       },
       {
-        id: 'timeout10',
-        name: 'Timeout 10s',
-        scenario: { scenario: 'Repair Terminal', goal: '— Beat the clock', time: 10, maxLines: null, snippet: `-- Try to finish before timeout\nlocal t = 0\nfor i=1,1000000 do t=t+i end\nprint('t =', t)` }
+        id: "timeout10",
+        name: "Timeout 10s",
+        scenario: {
+          scenario: "Repair Terminal",
+          goal: "— Beat the clock",
+          time: 10,
+          maxLines: null,
+          snippet:
+            "-- Try to finish before timeout\n" +
+            "local t = 0\n" +
+            "for i=1,1000000 do t=t+i end\n" +
+            "print('t =', t)"
+        }
       },
       {
-        id: 'error',
-        name: 'Runtime error demo',
-        scenario: { scenario: 'Repair Terminal', goal: '— Error handling', time: 0, maxLines: null, snippet: `-- Type error demo\nlocal n = nil\n-- next line should error in a real runner\nprint(n + 1)` }
+        id: "error",
+        name: "Runtime error demo",
+        scenario: {
+          scenario: "Repair Terminal",
+          goal: "— Error handling",
+          time: 0,
+          maxLines: null,
+          snippet:
+            "-- Type error demo\n" +
+            "local n = nil\n" +
+            "-- next line should error in a real runner\n" +
+            "print(n + 1)"
+        }
       }
     ];
 
-    function postShow(scn) { window.postMessage({ action: 'showTerminal', scenario: scn }, '*'); }
-    function postHide() { window.postMessage({ action: 'hideTerminal' }, '*'); }
-    function postPrint(msg) { window.postMessage({ action: 'printTerminal', msg }, '*'); }
+    function postShow(scn) {
+      window.postMessage({ action: "showTerminal", scenario: scn }, "*");
+    }
 
-    // Simple fake Lua runner for debug (very naive)
+    function postHide() {
+      window.postMessage({ action: "hideTerminal" }, "*");
+    }
+
+    function postPrint(msg) {
+      window.postMessage({ action: "printTerminal", msg: msg }, "*");
+    }
+
+    // Very naive fake "Lua" runner for browser debug
     function fakeLuaRun(code) {
-      addConsoleLine('Compiling...', 'info');
-      let lines = code.split(/\r?\n/);
+      addConsoleLine("Compiling...", "info");
+
+      const lines = code.split(/\r?\n/);
       let printed = 0;
-      for (let ln of lines) {
+
+      for (let i = 0; i < lines.length; i++) {
+        const ln = lines[i];
         const m = ln.match(/print\((.*)\)/);
+
         if (m) {
-          let payload = m[1].trim();
-          // Strip quotes around a simple string literal
-          const str = payload.match(/^[\'\"]([^\'\"]*)[\'\"]$/);
+          const payload = m[1].trim();
+          const str = payload.match(/^['"]([^'"]*)['"]$/);
+
           if (str) {
-            addConsoleLine(str[1], 'ok'); printed++;
+            addConsoleLine(str[1], "ok");
+            printed++;
           } else {
-            addConsoleLine(payload.replace(/[,]+/g, ' '), 'ok'); printed++;
+            addConsoleLine(payload.replace(/[,]+/g, " "), "ok");
+            printed++;
           }
         }
+
         if (/error/i.test(ln)) {
-          addConsoleLine('Error: simulated runtime error', 'err');
-          return { ok:false };
+          addConsoleLine("Error: simulated runtime error", "err");
+          return { ok: false };
         }
       }
-      if (printed === 0) addConsoleLine('No output (use print(...))', 'warn');
-      addConsoleLine('Done.', 'info');
-      return { ok:true };
+
+      if (printed === 0) {
+        addConsoleLine("No output (use print(...))", "warn");
+      }
+
+      addConsoleLine("Done.", "info");
+      return { ok: true };
     }
 
     function handleDebugNui(type, payload) {
-      addConsoleLine(`[DEBUG] sendNui(${type})`, 'warn');
-      if (type === 'runCode') {
-        setTimeout(() => fakeLuaRun(payload.code), 200);
+      addConsoleLine("[DEBUG] sendNui(" + type + ")", "warn");
+
+      if (type === "runCode") {
+        setTimeout(function () {
+          fakeLuaRun(payload.code);
+        }, 200);
       }
-      if (type === 'close') { postHide(); }
+
+      if (type === "close") {
+        postHide();
+      }
     }
 
-    // Debug panel wiring
-    const debugPanel  = document.getElementById('debugPanel');
-    const debugToggle = document.getElementById('debugToggle');
-    const scenarioSel = document.getElementById('scenarioSel');
-
     function populateScenarios() {
-      scenarioSel.innerHTML = '';
-      SCENARIOS.forEach((s, i) => {
-        const opt = document.createElement('option');
-        opt.value = s.id; opt.textContent = s.name; if (i===0) opt.selected = true;
+      scenarioSel.innerHTML = "";
+
+      for (let i = 0; i < SCENARIOS.length; i++) {
+        const s = SCENARIOS[i];
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = s.name;
+        if (i === 0) opt.selected = true;
         scenarioSel.appendChild(opt);
-      });
+      }
     }
 
     function getSelectedScenario() {
       const id = scenarioSel.value;
-      return (SCENARIOS.find(s => s.id === id) || SCENARIOS[0]).scenario;
+      for (let i = 0; i < SCENARIOS.length; i++) {
+        if (SCENARIOS[i].id === id) {
+          return SCENARIOS[i].scenario;
+        }
+      }
+      return SCENARIOS[0].scenario;
     }
 
     function toggleDebugPanel(force) {
-      const vis = force !== undefined ? force : (debugPanel.style.display === 'none');
-      debugPanel.style.display = vis ? 'flex' : 'none';
+      const visible =
+        force !== undefined
+          ? force
+          : debugPanel.style.display === "none";
+
+      debugPanel.style.display = visible ? "flex" : "none";
     }
 
-    // Buttons
-    document.getElementById('btnShow').addEventListener('click', () => postShow(getSelectedScenario()));
-    document.getElementById('btnHide').addEventListener('click', postHide);
-    document.getElementById('btnPrint').addEventListener('click', () => postPrint('Hello from debug panel'));
-    document.getElementById('btnSpam').addEventListener('click', () => { for (let i=1;i<=5;i++) postPrint(`Spam line ${i}`); });
-    document.getElementById('btnTimeout').addEventListener('click', () => { startCountdown(3); });
-    document.getElementById('btnTimer60').addEventListener('click', () => startCountdown(60));
-    document.getElementById('btnMax6').addEventListener('click', () => { maxLines = 6; updateLineInfo(); postPrint('Max lines set to 6'); });
+    document.getElementById("btnShow").addEventListener("click", function () {
+      postShow(getSelectedScenario());
+    });
 
-    // Init
-    (function initDebug(){
+    document.getElementById("btnHide").addEventListener("click", postHide);
+
+    document.getElementById("btnPrint").addEventListener("click", function () {
+      postPrint("Hello from debug panel");
+    });
+
+    document.getElementById("btnSpam").addEventListener("click", function () {
+      for (let i = 1; i <= 5; i++) {
+        postPrint("Spam line " + i);
+      }
+    });
+
+    document.getElementById("btnTimeout").addEventListener("click", function () {
+      startCountdown(3);
+    });
+
+    document.getElementById("btnTimer60").addEventListener("click", function () {
+      startCountdown(60);
+    });
+
+    document.getElementById("btnMax6").addEventListener("click", function () {
+      maxLines = 6;
+      updateLineInfo();
+      postPrint("Max lines set to 6");
+    });
+
+    (function initDebug() {
       populateScenarios();
+
       if (DEBUG) {
-        debugPanel.style.display = 'flex';
-        debugToggle.style.display = 'inline-flex';
+        debugPanel.style.display = "flex";
+        debugToggle.style.display = "inline-flex";
         postShow(SCENARIOS[0].scenario);
       }
-      debugToggle.addEventListener('click', () => toggleDebugPanel());
+
+      debugToggle.addEventListener("click", function () {
+        toggleDebugPanel();
+      });
     })();
   </script>
+
 </body>
 </html>
