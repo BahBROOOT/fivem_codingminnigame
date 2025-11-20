@@ -4,6 +4,10 @@ A coding terminal - task system for **FiveM**. Players solve Lua challenges in a
 
 ---
 
+<img src="Screenshot_4.png" alt="isolated" width="500"/>
+
+---
+
 ## Features
 
 - **Terminal UI** with run/cancel, timer bar, line limit, and live console output.
